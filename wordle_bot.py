@@ -19,11 +19,8 @@ def find_pattern(a,b):
 
 def find_probs(guess, true_words):
     pattern_probs = Counter([find_pattern(guess, word) for word in true_words])
-    probs = []
-    N = len(true_words)
-    for v in pattern_probs.values():
-        probs.append(v/N)
-    return np.array(probs)
+    probs = np.array(list(pattern_probs.values()))/len(true_words)
+    return probs
 
 def calculate_entropy(probs):
     return -np.dot(probs, np.log2(probs))
@@ -48,9 +45,8 @@ if __name__ == "__main__":
             entropy = np.array(pool.map(partial(find_entropy, true_words=true_words), possible_words))
         top_indexes = np.argpartition(entropy,-10)[-10:]
         top_entropies = entropy[top_indexes]
-        top_indexes = top_indexes[np.argsort(top_entropies)[::-1]]
-        top_entropies = np.sort(top_entropies)[::-1]
         top_words = [possible_words[i] for i in top_indexes]
+        top_entropies, top_words  = zip(*sorted(zip(top_entropies, top_words),reverse=True))
         print(top_words)
         print(top_entropies)
         guess = input("Chosen guess: ")
